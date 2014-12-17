@@ -44,6 +44,29 @@ Remaining keyword arguments to support include:
 * encoding
 * default
 
+## Getting Started
+
+Create a basic html page:
+
+```html
+<!-- @TODO: replace with example markup... -->
+```
+
+Add the json.sk specific Skulpt configuration options
+```js
+// tell Skulpt where to find json.sk and its dependencies
+Sk.externalLibraries = {
+  json : {
+    path : '/path/to/json.sk/__init__.js',
+    dependencies : [
+      '/path/to/json.sk/stringify.js'
+    ]
+  }
+};
+```
+
+Point your browser to your html page and have fun!
+
 ## Dependencies
 
-Currently relies on a [browserify](https://github.com/substack/node-browserify)'d version of [json-stable-stringify](://github.com/substack/json-stable-stringify).
+Currently relies on a [browserify](https://github.com/substack/node-browserify)'d version of [json-stable-stringify](https://github.com/substack/json-stable-stringify).
