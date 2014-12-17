@@ -1,8 +1,5 @@
-(function() {
-
-"use strict";
-
 var $builtinmodule = function(name) {
+  "use strict";
   var mod = {};
 
   // skipkeys=False,
@@ -90,5 +87,3 @@ var $builtinmodule = function(name) {
 
   return mod;
 };
-
-})();
