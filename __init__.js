@@ -1,3 +1,7 @@
+(function() {
+
+"use strict";
+
 var $builtinmodule = function(name) {
   var mod = {};
 
@@ -16,28 +20,32 @@ var $builtinmodule = function(name) {
   var dumps_f = function(kwa) {
     Sk.builtin.pyCheckArgs("dumps", arguments, 1, Infinity, true, false);
 
-    var args   = Array.prototype.slice.call(arguments, 1);
-    var kwargs = new Sk.builtins.dict(kwa);
-    kwargs     = Sk.ffi.remapToJs(kwargs);
+    var args           = Array.prototype.slice.call(arguments, 1),
+        kwargs         = new Sk.builtins.dict(kwa),
+        ensure_ascii   = true,
+        sort_keys      = false,
+        stringify_opts = {},
+        jsobj, str;
 
-    var jsobj = Sk.ffi.remapToJs(args[0]);
-
-    var stringify_opts = {};
+    kwargs = Sk.ffi.remapToJs(kwargs);
+    jsobj  = Sk.ffi.remapToJs(args[0]);
 
     // TODO: likely need to go through character by character to enable this
-    var ensure_ascii = true;
-    if (typeof(kwargs.ensure_ascii) === "boolean" && kwargs.ensure_ascii == false) ensure_ascii = false;
+    if (typeof(kwargs.ensure_ascii) === "boolean" && kwargs.ensure_ascii === false) {
+      ensure_ascii = false;
+    }
 
     // TODO: javascript sort isn't entirely compatible with python's
-    var sort_keys = false;
-    if (typeof(kwargs.sort_keys) === "boolean" && kwargs.sort_keys) sort_keys = true;
+    if (typeof(kwargs.sort_keys) === "boolean" && kwargs.sort_keys) {
+      sort_keys = true;
+    }
 
     if (!sort_keys) {
       // don't do any sorting unless sort_keys is true
       // if sort_keys use stringify's default sort, which is alphabetical
       stringify_opts.cmp = function(a, b) {
         return 0;
-      }
+      };
     }
 
     // item_separator, key_separator) tuple. The default is (', ', ': ').
@@ -54,10 +62,10 @@ var $builtinmodule = function(name) {
     if (kwargs.indent) stringify_opts.space = kwargs.indent;
 
     // may need to create a clone of this to have more control/options
-    var str = stringify(jsobj, stringify_opts);
+    str = stringify(jsobj, stringify_opts);
 
     return new Sk.builtin.str(str);
-  }
+  };
 
   dumps_f.co_kwargs = true;
   mod.dumps = new Sk.builtin.func(dumps_f);
@@ -66,18 +74,21 @@ var $builtinmodule = function(name) {
   var loads_f = function(kwa) {
     Sk.builtin.pyCheckArgs("loads", arguments, 1, Infinity, true, false);
 
-    var args   = Array.prototype.slice.call(arguments, 1);
-    var kwargs = new Sk.builtins.dict(kwa);
-    kwargs     = Sk.ffi.remapToJs(kwargs);
+    var args   = Array.prototype.slice.call(arguments, 1),
+        kwargs = new Sk.builtins.dict(kwa),
+        str, obj;
 
-    var str = args[0].v;
-    var obj = JSON.parse(str);
+    kwargs = Sk.ffi.remapToJs(kwargs);
+    str    = args[0].v;
+    obj    = JSON.parse(str);
 
     return Sk.ffi.remapToPy(obj);
-  }
+  };
 
   loads_f.co_kwargs = true;
   mod.loads = new Sk.builtin.func(loads_f);
 
   return mod;
-}
+};
+
+})();
