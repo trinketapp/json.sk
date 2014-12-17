@@ -17,6 +17,7 @@ So far, only dumps and its loads counterpart are supported. dump and load deal w
 While support of all arguments is far from complete this implementation passes many of the tests found in the Python distribution. Supported keyword arguments are:
 
 * indent
+* separators
 * sort_keys
 
 ### loads
@@ -40,7 +41,6 @@ Remaining keyword arguments to support include:
 * check_circular
 * allow_nan
 * cls
-* separators
 * encoding
 * default
 

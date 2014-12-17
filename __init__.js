@@ -28,6 +28,7 @@ var $builtinmodule = function(name) {
     var ensure_ascii = true;
     if (typeof(kwargs.ensure_ascii) === "boolean" && kwargs.ensure_ascii == false) ensure_ascii = false;
 
+    // TODO: javascript sort isn't entirely compatible with python's
     var sort_keys = false;
     if (typeof(kwargs.sort_keys) === "boolean" && kwargs.sort_keys) sort_keys = true;
 
@@ -37,6 +38,16 @@ var $builtinmodule = function(name) {
       stringify_opts.cmp = function(a, b) {
         return 0;
       }
+    }
+
+    // item_separator, key_separator) tuple. The default is (', ', ': ').
+    stringify_opts.separators = {
+      item_separator : ', ',
+      key_separator  : ': '
+    };
+    if (typeof(kwargs.separators) === "object" && kwargs.separators.length == 2) {
+      stringify_opts.separators.item_separator = kwargs.separators[0];
+      stringify_opts.separators.key_separator  = kwargs.separators[1];
     }
 
     // TODO: if indent is 0 it should add newlines

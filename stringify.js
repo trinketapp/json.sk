@@ -17,6 +17,7 @@ module.exports = function (obj, opts) {
     if (!opts) opts = {};
     if (typeof opts === 'function') opts = { cmp: opts };
     var space = opts.space || '';
+    var separators = opts.separators || { item_separator : ',', key_separator : ':' };
     if (typeof space === 'number') space = Array(space+1).join(' ');
     var cycles = (typeof opts.cycles === 'boolean') ? opts.cycles : false;
     var replacer = opts.replacer || function(key, value) { return value; };
@@ -34,7 +35,7 @@ module.exports = function (obj, opts) {
     var seen = [];
     return (function stringify (parent, key, node, level) {
         var indent = space ? ('\n' + new Array(level + 1).join(space)) : '';
-        var colonSeparator = space ? ': ' : ':';
+        var colonSeparator = separators.key_separator;
 
         if (node && node.toJSON && typeof node.toJSON === 'function') {
             node = node.toJSON();
@@ -54,7 +55,7 @@ module.exports = function (obj, opts) {
                 var item = stringify(node, i, node[i], level+1) || json.stringify(null);
                 out.push(indent + space + item);
             }
-            return '[' + out.join(',') + indent + ']';
+            return out.length ? '[' + out.join(separators.item_separator) + indent + ']' : '[]';
         }
         else {
             if (seen.indexOf(node) !== -1) {
@@ -77,7 +78,7 @@ module.exports = function (obj, opts) {
                 ;
                 out.push(indent + space + keyValue);
             }
-            return '{' + out.join(',') + indent + '}';
+            return '{' + out.join(separators.item_separator) + indent + '}';
         }
     })({ '': obj }, '', obj, 0);
 };
