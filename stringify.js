@@ -18,6 +18,7 @@ module.exports = function (obj, opts) {
     if (typeof opts === 'function') opts = { cmp: opts };
     var space = opts.space || '';
     var separators = opts.separators || { item_separator : ',', key_separator : ':' };
+    var ascii = opts.ascii || false;
     if (typeof space === 'number') space = Array(space+1).join(' ');
     var cycles = (typeof opts.cycles === 'boolean') ? opts.cycles : false;
     var replacer = opts.replacer || function(key, value) { return value; };
@@ -47,7 +48,16 @@ module.exports = function (obj, opts) {
             return;
         }
         if (typeof node !== 'object' || node === null) {
-            return json.stringify(node);
+            var result = node;
+            if (ascii) {
+              result = toAscii(node);
+            }
+            if (result === node) {
+              return json.stringify(node);
+            }
+            else {
+              return '"' + result + '"';
+            }
         }
         if (isArray(node)) {
             var out = [];
@@ -72,10 +82,21 @@ module.exports = function (obj, opts) {
 
                 if(!value) continue;
 
-                var keyValue = json.stringify(key)
+                var jsonkey = key;
+                if (ascii) {
+                  jsonkey = toAscii(key);
+                }
+                if (jsonkey === key) {
+                  jsonkey = json.stringify(key);
+                }
+                else {
+                  jsonkey = '"' + jsonkey + '"';
+                }
+
+                var keyValue = jsonkey
                     + colonSeparator
                     + value;
-                ;
+
                 out.push(indent + space + keyValue);
             }
             return '{' + out.join(separators.item_separator) + indent + '}';
@@ -95,6 +116,28 @@ var objectKeys = Object.keys || function (obj) {
     }
     return keys;
 };
+
+var toAscii = function(str) {
+  var length = str.length,
+      index  = -1,
+      result = '',
+      character, charCode, hexadecimal, escaped;
+
+  while (++index < length) {
+    character   = str.charAt(index);
+    charCode    = character.charCodeAt(0);
+    if (charCode > 127) {
+      hexadecimal = charCode.toString(16).toUpperCase();
+      escaped     = '\\u' + ('0000' + hexadecimal).slice(-4);
+
+      result += escaped;
+    }
+    else {
+      result += character;
+    }
+  }
+  return result;
+}
 
 },{"jsonify":3}],3:[function(require,module,exports){
 exports.parse = require('./lib/parse');

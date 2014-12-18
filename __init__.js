@@ -17,19 +17,26 @@ var $builtinmodule = function(name) {
   var dumps_f = function(kwa) {
     Sk.builtin.pyCheckArgs("dumps", arguments, 1, Infinity, true, false);
 
-    var args           = Array.prototype.slice.call(arguments, 1),
-        kwargs         = new Sk.builtins.dict(kwa),
-        ensure_ascii   = true,
-        sort_keys      = false,
-        stringify_opts = {},
-        jsobj, str;
+    var args      = Array.prototype.slice.call(arguments, 1),
+        kwargs    = new Sk.builtins.dict(kwa),
+        sort_keys = false,
+        stringify_opts, default_, jsobj, str;
+
+    // default stringify options
+    stringify_opts = {
+      ascii      : true,
+      separators : {
+        item_separator : ', ',
+        key_separator  : ': '
+      }
+    };
 
     kwargs = Sk.ffi.remapToJs(kwargs);
     jsobj  = Sk.ffi.remapToJs(args[0]);
 
     // TODO: likely need to go through character by character to enable this
     if (typeof(kwargs.ensure_ascii) === "boolean" && kwargs.ensure_ascii === false) {
-      ensure_ascii = false;
+      stringify_opts.ascii = false;
     }
 
     // TODO: javascript sort isn't entirely compatible with python's
@@ -46,17 +53,19 @@ var $builtinmodule = function(name) {
     }
 
     // item_separator, key_separator) tuple. The default is (', ', ': ').
-    stringify_opts.separators = {
-      item_separator : ', ',
-      key_separator  : ': '
-    };
     if (typeof(kwargs.separators) === "object" && kwargs.separators.length == 2) {
       stringify_opts.separators.item_separator = kwargs.separators[0];
       stringify_opts.separators.key_separator  = kwargs.separators[1];
     }
 
     // TODO: if indent is 0 it should add newlines
-    if (kwargs.indent) stringify_opts.space = kwargs.indent;
+    if (kwargs.indent) {
+      stringify_opts.space = kwargs.indent;
+    }
+
+    // Sk.ffi.remapToJs doesn't map functions
+    if (kwargs.default) {
+    }
 
     // may need to create a clone of this to have more control/options
     str = stringify(jsobj, stringify_opts);
